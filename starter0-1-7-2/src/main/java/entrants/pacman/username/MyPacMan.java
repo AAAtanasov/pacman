@@ -80,9 +80,21 @@ public class MyPacMan extends PacmanController {
                     // check better move
                     if (runTowards.size() > 1){
                         System.out.println("Dumb move");
+                        System.out.println(runTowards.get(0));
+
                     }
+                    ExtractFeaturesFromState(state, game);
+                    MOVE suggestedMove = game.getNextMoveTowardsTarget(pacmanIndex, currentTargetNode,  distanceMeasure);
                     // check for a better move
-                    myMove = runTowards.get(0);
+                    if (runTowards.contains(suggestedMove)){
+                        myMove = suggestedMove;
+                        System.out.println("Suggested move used: " + myMove.toString());
+
+                    } else {
+                        myMove = runTowards.get(0);
+
+                    }
+
                 }
                 // select the one which brings the best reward
 
@@ -103,9 +115,12 @@ public class MyPacMan extends PacmanController {
 
 
         } else {
-            if (currentTargetNode == 0 || pacmanIndex == currentTargetNode){
-                ExtractFeaturesFromState(state, game);
-            }
+//            if (currentTargetNode == 0 || pacmanIndex == currentTargetNode){
+//                ExtractFeaturesFromState(state, game);
+//            } else if (game.isJunction(pacmanIndex)){
+//                ExtractFeaturesFromState(state, game);
+//            }
+            ExtractFeaturesFromState(state, game);
 
             myMove = game.getNextMoveTowardsTarget(pacmanIndex, currentTargetNode, lastMove, distanceMeasure);
         }

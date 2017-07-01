@@ -94,7 +94,7 @@ public class ExtendedGame {
     private ArrayList<ScoreClass> EvaluateChains(ArrayList<ArrayList<Integer>> listOfLengths){
         int bestCount = 0;
         ArrayList<ScoreClass> scores = new ArrayList();
-        int stepSize = 5;
+        int stepSize = 25;
 
         for(int i = 0; i < listOfLengths.size(); i++){
             ArrayList<Integer> currentList = listOfLengths.get(i);
