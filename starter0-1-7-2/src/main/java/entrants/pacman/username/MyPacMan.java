@@ -5,6 +5,7 @@ import pacman.game.Constants;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 import pacman.game.info.GameInfo;
+import pacman.game.internal.Ghost;
 import pacman.game.internal.Maze;
 
 import java.util.*;
@@ -42,9 +43,11 @@ public class MyPacMan extends PacmanController {
         this.extendedGame.updateGame(game);
         GameInfo state = game.getPopulatedGameInfo();
         int pacmanIndex = state.getPacman().currentNodeIndex;
+        MOVE lastMove = state.getPacman().lastMoveMade;
+
+        MOVE test = game.getApproximateNextMoveTowardsTarget(pacmanIndex, 0, lastMove, distanceMeasure );
 
         //modify pill lists
-        MOVE lastMove = state.getPacman().lastMoveMade;
         //check if in junction
         //check for pill
 //        int pillIndex = game.getPillIndex(pacmanIndex);
@@ -59,22 +62,48 @@ public class MyPacMan extends PacmanController {
 //                }
 //            }
 //        }
-
+        myMove = MOVE.NEUTRAL;
         //check if ghost is present
+        if(state.getGhosts().size() > 0){
+            ArrayList<MOVE> movesAway = new ArrayList();
+            EnumMap<Constants.GHOST, Ghost> ghosts = state.getGhosts();
+            for(Ghost ghost : ghosts.values()){
+                MOVE away = game.getNextMoveAwayFromTarget(pacmanIndex,ghost.currentNodeIndex, lastMove, distanceMeasure);
+                movesAway.add(away);
+            }
+            // choose best move away
+            if (movesAway.size() > 1){
+                MOVE originalMove = movesAway.get(0);
+                MOVE[] awayDirections = new MOVE[movesAway.size()];
+                MOVE[] possibleMoves = game.getPossibleMoves(pacmanIndex);
+                // remove moveaway from possible moves
+                ArrayList<MOVE> run = new ArrayList();
+                run.addAll(Arrays.asList(awayDirections));
+
+
+                // set union -> remove movesaway from possible moves
+                // select the one which brings the best reward
+
+                for(int i = 0; i < movesAway.size(); i ++){
+                    MOVE nextAway = movesAway.get(i);
+                    if (nextAway != originalMove){
+
+                    }
+                }
+            } else {
+                myMove = movesAway.get(0);
+            }
+
+
+        } else {
+            if (currentTargetNode == 0 || pacmanIndex == currentTargetNode){
+                ExtractFeaturesFromState(state, game);
+            }
+
+            myMove = game.getNextMoveTowardsTarget(pacmanIndex, currentTargetNode, lastMove, distanceMeasure);
+        }
         //check if target is achieved
-        if (currentTargetNode == 0 || pacmanIndex == currentTargetNode){
-            ExtractFeaturesFromState(state, game);
 
-        }
-
-        try {
-
-        } catch (NoSuchElementException ex){
-            //check for available pills
-
-        }
-        MOVE asd = game.getNextMoveTowardsTarget(pacmanIndex, currentTargetNode, distanceMeasure);
-        myMove = asd;
         //check if pill will be eaten
 
 
@@ -89,31 +118,50 @@ public class MyPacMan extends PacmanController {
 //
 //    }
 
+    private int FindBestTarget(Game game, int pillIndex){
+//        Boolean isPillAvailable = this.extendedGame.isPillStillAvailable(pillIndex);
+//        if (isPillAvailable) {
+//            return pillIndex;
+//        } else {
+//        }
+        return this.extendedGame.goToPill();
+
+    }
+
     public void ExtractFeaturesFromState(GameInfo info, Game game) {
         int pacmanIndex = info.getPacman().currentNodeIndex;
         int[] pill_nodes = game.getActivePillsIndices();
-        int maxOccurances = 0;
+        if (pill_nodes.length == 0){
+            int pillIndex = this.extendedGame.goToPill();
+            int asdasda = this.pillsInMaze.get(pillIndex);
+            this.currentTargetNode = asdasda;
+            int test = 1;
 
-        int[] distanses = new int[pill_nodes.length];
-        for (int i = 0; i < pill_nodes.length; i ++){
-            distanses[i] = game.getManhattanDistance(pacmanIndex, pill_nodes[i]);
-        }
+        } else {
+            int maxOccurances = 0;
 
-        int[] copy = distanses.clone();
-        Arrays.sort(distanses);
-        int min = Arrays.stream(distanses).min().getAsInt();
-        int max = Arrays.stream(distanses).max().getAsInt();
-        int indexOfMaxa = Arrays.binarySearch(distanses, max);
-        if (indexOfMaxa < distanses.length - 1){
-            maxOccurances = distanses.length - indexOfMaxa; // error prone
-        }
-
-        for (Integer item : copy) {
-            if (item == max){
-                maxOccurances += 1;
+            int[] distanses = new int[pill_nodes.length];
+            for (int i = 0; i < pill_nodes.length; i ++){
+                distanses[i] = game.getManhattanDistance(pacmanIndex, pill_nodes[i]);
             }
+
+            int[] copy = distanses.clone();
+            Arrays.sort(distanses);
+            int min = Arrays.stream(distanses).min().getAsInt();
+            int max = Arrays.stream(distanses).max().getAsInt();
+            int indexOfMaxa = Arrays.binarySearch(distanses, max);
+            if (indexOfMaxa < distanses.length - 1){
+                maxOccurances = distanses.length - indexOfMaxa; // error prone
+            }
+
+            for (Integer item : copy) {
+                if (item == max){
+                    maxOccurances += 1;
+                }
+            }
+            this.currentTargetNode = pill_nodes[indexOfMaxa];
         }
-        currentTargetNode = pill_nodes[indexOfMaxa];
+
 
         //check for chain and compute score
 //        if (maxOccurances == 1) {

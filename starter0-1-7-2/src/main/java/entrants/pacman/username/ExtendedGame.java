@@ -1,5 +1,7 @@
 package entrants.pacman.username;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -44,24 +46,41 @@ public class ExtendedGame {
 
         for (int i = 0; i < pills.length; i++)
         {
-            if(i == 148){
-                int test = 1;
+            Boolean thisPill = this.game.isPillStillAvailable(i);
+            if (thisPill != null && thisPill == false){
+                this.pillIsStillAvailable[i] = false;
             }
-            try {
-                Boolean thisPill = this.game.isPillStillAvailable(i);
-                if (thisPill != null && thisPill == false){
-                    this.pillIsStillAvailable[i] = false;
-                }
-
-            } catch (NullPointerException ex) {
-                int a = 1;
-
-            }
-
-
         }
     }
 
+    public int goToPill(){
+        ArrayList<Integer> bestChain = new ArrayList();
+        ArrayList<ArrayList<Integer>> listOfLengths = new ArrayList();
+        int bestCount = 0;
+
+        for(int i = 0; i < this.pillIsStillAvailable.length; i++){
+            // iterate over all pills
+            // each true chain is stored
+            // on false interupt store chain
+            if (this.pillIsStillAvailable[i] == true){
+                bestChain.add(i);
+                bestCount ++;
+            } else{
+                if (bestChain.size() != 0){
+                    ArrayList<Integer> arrayToStore = new ArrayList(bestChain);
+                    listOfLengths.add(arrayToStore);
+                    bestChain = new ArrayList<>();
+                }
+            }
+        }
+
+        // iterate chains and look for longest
+        listOfLengths.sort(Comparator.comparing(ArrayList::size));
+        ArrayList<Integer> bestList = listOfLengths.get(listOfLengths.size() - 1);
+
+        // FIx this for end game
+        return bestList.get(0);
+    }
 
     private void resetData(Game game){
         this.resetPowerPills();
