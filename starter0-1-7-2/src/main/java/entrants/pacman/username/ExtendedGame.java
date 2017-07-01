@@ -1,12 +1,10 @@
 package entrants.pacman.username;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.*;
 
 import pacman.game.Constants;
 import pacman.game.Game;
+import entrants.pacman.username.ScoreClass;
 
 
 public class ExtendedGame {
@@ -14,13 +12,17 @@ public class ExtendedGame {
     private boolean[] powerPillIsStillAvailable = null;
     private int mazeIndex;
     public Game game;
+    private Constants.DM distanceMeasure = Constants.DM.MANHATTAN;
+    private ArrayList<Integer> pillsInMaze = null;
+
 
 
     public ExtendedGame(){
     }
 
-    public void initGame(Game game){
+    public void initGame(Game game, ArrayList<Integer> pillsInMaze){
         this.game = game;
+        this.pillsInMaze = pillsInMaze;
         resetPills();
         resetPowerPills();
     }
@@ -75,20 +77,87 @@ public class ExtendedGame {
         }
 
         // iterate chains and look for longest
-        listOfLengths.sort(Comparator.comparing(ArrayList::size));
-        if (listOfLengths.size() > 5){
-
-        } else {
-
-        }
-        ArrayList<Integer> bestList = listOfLengths.get(listOfLengths.size() - 1);
+        ArrayList<ScoreClass> evaluation = EvaluateChains(listOfLengths);
+        int bestTarget = GetBestCurrentTarget(evaluation);
+//        listOfLengths.sort(Comparator.comparing(ArrayList::size));
+//        if (listOfLengths.size() > 5){
+//
+//        } else {
+//
+//        }
+//        ArrayList<Integer> bestList = listOfLengths.get(listOfLengths.size() - 1);
 
         // FIx this for end game
-        return bestList.get(0);
+        return bestTarget;
     }
 
-    private void EvaluateChains(){
+    private ArrayList<ScoreClass> EvaluateChains(ArrayList<ArrayList<Integer>> listOfLengths){
+        int bestCount = 0;
+        ArrayList<ScoreClass> scores = new ArrayList();
 
+        for(int i = 0; i < listOfLengths.size(); i++){
+            ArrayList<Integer> currentList = listOfLengths.get(i);
+            // expect chains with more than 10 pills together
+            // select closest chain and score
+            if (currentList.size() > 10){
+                //check distance to first and last pill - use median for scale
+                int remaining = currentList.size() % 10;
+                int iterationCount = (currentList.size() - remaining) / 10;
+
+                for(int j = 0; j < iterationCount; j++){
+                    int startIndex = j * 10;
+                    ArrayList<Integer> listToConsider = new ArrayList(currentList.subList(j, j+ 10));
+                    ScoreClass scoreToAdd = ExtractScoreFromChain(listToConsider);
+                    scores.add(scoreToAdd);
+                }
+
+                if(remaining > 0){
+                    int startIndex = iterationCount * 10 - 1;
+                    ArrayList<Integer> listToConsider = new ArrayList(currentList.subList(startIndex, startIndex + remaining));
+                    ScoreClass scoreToAdd = ExtractScoreFromChain(listToConsider);
+                    scores.add(scoreToAdd);
+                }
+
+            } else{
+                ScoreClass newScore = ExtractScoreFromChain(currentList);
+                scores.add(newScore);
+            }
+        }
+
+        return scores;
+    }
+
+    private int GetBestCurrentTarget(ArrayList<ScoreClass> scores){
+        ScoreClass bestScore = null;
+        double leastDistance = 99999;
+        int bestIndex = 0;
+        scores.sort(Comparator.comparing(ScoreClass::getDistance));
+
+//        for(int i = 0; i< scores.size(); i++){
+//            ScoreClass currentScore = scores.get(i);
+//            if(currentScore.getDistance() < leastDistance){
+//                leastDistance = currentScore.getDistance();
+//                bestScore = currentScore;
+//                bestIndex = i;
+//            }
+//        }
+
+        return scores.get(0).getClosestNode();
+    }
+
+    private ScoreClass ExtractScoreFromChain(ArrayList<Integer> currentList){
+
+        int firstElementAsNode = this.pillsInMaze.get(currentList.get(0));
+        int lastElementAsNode = this.pillsInMaze.get(currentList.get(currentList.size() - 1));
+        double distanceToFirst = this.game.getDistance(this.game.getPacmanCurrentNodeIndex(),
+                firstElementAsNode, distanceMeasure);
+        double distanceToLast = this.game.getDistance(this.game.getPacmanCurrentNodeIndex(),
+                lastElementAsNode, distanceMeasure);
+
+        double distanceMeasure = (distanceToFirst + distanceToLast) / 2;
+        ScoreClass toAdd = new ScoreClass(distanceMeasure, currentList.size(), distanceToFirst, distanceToLast,
+                firstElementAsNode, lastElementAsNode);
+        return toAdd;
     }
 
     private void resetData(Game game){

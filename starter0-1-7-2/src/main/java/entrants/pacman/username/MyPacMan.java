@@ -31,17 +31,20 @@ public class MyPacMan extends PacmanController {
     private static final int SIZE = MOVE.values().length;
     private static final List<MOVE> VALUES =
             Collections.unmodifiableList(Arrays.asList(MOVE.values()));
+    private int gameLevel = -1;
 
 
 //    public Maze currentMaze = game.getCurrentMaze();
 
     public MOVE getMove(Game game, long timeDue) {
-        if (startIndex == 0) {
+        int currentLevel = game.getCurrentLevel();
+        if (currentLevel != gameLevel){
             FirstIteration(game);
             this.extendedGame = new ExtendedGame();
-            this.extendedGame.initGame(game);
-            startIndex += 1;
+            this.extendedGame.initGame(game, this.pillsInMaze);
+            this.gameLevel = currentLevel;
         }
+
 
         this.extendedGame.updateGame(game);
         GameInfo state = game.getPopulatedGameInfo();
@@ -50,36 +53,17 @@ public class MyPacMan extends PacmanController {
 
         MOVE test = game.getApproximateNextMoveTowardsTarget(pacmanIndex, 0, lastMove, distanceMeasure );
 
-        //modify pill lists
-        //check if in junction
-        //check for pill
-//        int pillIndex = game.getPillIndex(pacmanIndex);
-//        Boolean test = game.wasPillEaten();
-//        if(test){
-//            int lastMov
-//            if(isPillAvailable){
-//                //get pill index
-//                if(pillsInMaze.contains(pillIndex)){
-//                    pillsInMaze.remove(pillIndex);
-//
-//                }
-//            }
-//        }
         myMove = MOVE.NEUTRAL;
+
         //check if ghost is present
         if(state.getGhosts().size() > 0){
             ArrayList<MOVE> movesAway = new ArrayList();
             EnumMap<Constants.GHOST, Ghost> ghosts = state.getGhosts();
             ArrayList<Ghost> ghostArr = new ArrayList(ghosts.values());
-//            ArrayList<Ghost> ghostArr = new ArrayList();
 
             for(Ghost ghost : ghostArr){
                 double distanceToGhost = game.getDistance(pacmanIndex, ghost.currentNodeIndex, distanceMeasure);
-                System.out.println(distanceToGhost);
-                if (ghost.edibleTime > 0){
-                    int asdas = 1;
-                }
-                if (ghost.edibleTime == 0){
+                if (ghost.edibleTime == 0 && distanceToGhost < 35){
                     MOVE away = game.getNextMoveAwayFromTarget(pacmanIndex,ghost.currentNodeIndex, distanceMeasure);
                     movesAway.add(away);
                 }
@@ -133,14 +117,6 @@ public class MyPacMan extends PacmanController {
         return myMove;
     }
 
-//    private int[] FindPillChain(int[] distanses, int pacmanIndex) {
-//        // find best from min to max chain
-//
-////        int[] bestChain =
-//
-//
-//    }
-
     private int FindBestTarget(Game game, int pillIndex){
 //        Boolean isPillAvailable = this.extendedGame.isPillStillAvailable(pillIndex);
 //        if (isPillAvailable) {
@@ -156,9 +132,8 @@ public class MyPacMan extends PacmanController {
         int[] pill_nodes = game.getActivePillsIndices();
         if (pill_nodes.length == 0){
             int pillIndex = this.extendedGame.goToPill();
-            int asdasda = this.pillsInMaze.get(pillIndex);
-            this.currentTargetNode = asdasda;
-            int test = 1;
+//            int asdasda = this.pillsInMaze.get(pillIndex);
+            this.currentTargetNode = pillIndex;
 
         } else {
             int maxOccurances = 0;
