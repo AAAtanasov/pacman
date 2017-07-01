@@ -134,6 +134,7 @@ public class MyPacMan extends PacmanController {
             int pillIndex = this.extendedGame.goToPill();
 //            int asdasda = this.pillsInMaze.get(pillIndex);
             this.currentTargetNode = pillIndex;
+            int test = 1;
 
         } else {
             int maxOccurances = 0;
@@ -161,19 +162,6 @@ public class MyPacMan extends PacmanController {
         }
 
 
-        //check for chain and compute score
-//        if (maxOccurances == 1) {
-//            int indexOfMax = Arrays.asList(copy).indexOf(max);
-//            int targetIndex = pill_nodes[indexOfMax];
-//            int[] shortestPath = game.getShortestPath(pacmanIndex, targetIndex);
-//        } else {
-////            int maxIndex = game.getPillIndex(pill_nodes[indexOfMaxa]);
-//            MOVE asd = game.getNextMoveTowardsTarget(pacmanIndex, pill_nodes[indexOfMaxa], distanceMeasure);
-//            int a = 1;
-//            currentTargetNode = pill_nodes[indexOfMaxa];
-//            //check state
-//            //check for chain
-//        }
 
 
 
@@ -207,51 +195,6 @@ public class MyPacMan extends PacmanController {
         for (Integer powerPill : allPowerPills){
             powerPillsInMaze.add(powerPill);
         }
-
-//        Maze temp = game.getCurrentMaze();
-//        Arrays.stream(game.getCurrentMaze().graph).forEach(node -> {
-//
-//            int y = game.getNodeYCood(node.nodeIndex) / 2;
-//            int x = game.getNodeXCood(node.nodeIndex);
-//            x_train.add(x);
-//            y_train.add(y);
-//            int score = 50;
-//            // check for pills
-//
-//        });
-//
-//        Collections.sort(x_train);
-//        Collections.sort(y_train);
-//        Set uniqueValues = new HashSet(x_train);
-//        Set uniqueValuesy = new HashSet(y_train);
     }
-//
-//    private void resetGame(Game game) {
-//        Arrays.stream(game.getCurrentMaze().graph).forEach(node -> {
-////            state[node.y / 2][node.x / 2] = 0.07;
-//            s1.putScalar(0, 0, node.y / 2, node.x / 2, 0.1); // like s^prime
-////            state.putScalar(new int[]{node.y / 2, node.x / 2}, 0x444444);
-//        });
-//        Arrays.stream(game.getPillIndices()).forEach(index -> {
-//            int x = (int) Math.ceil((float) (game.getNodeXCood(index) - 1) / 2.0), y = (int) Math.ceil((float) (game.getNodeYCood(index) - 1) / 2.0);
-//            s1.putScalar(0, 0, y, x, 0.5);
-////            state[y][x] = 0.5;
-////            state.putScalar(new int[]{y, x}, 0xffff00);
-//        });
-//
-//        Arrays.stream(game.getPowerPillIndices()).forEach(index -> {
-//            int x = (int) Math.ceil((float) (game.getNodeXCood(index) - 1) / 2.0), y = (int) Math.ceil((float) (game.getNodeYCood(index) - 1) / 2.0);
-////            state.putScalar(new int[]{y, x}, 0xf54f98);
-//            s1.putScalar(0, 0, y, x, 0.5);
-////            state[y][x] = 0.5;
-//        });
-//
-//
-//        resetRound();
-//    }
 
-    public double getValue(Game game){
-//        game.getCurrentMaze()
-        return game.getScore() + game.getPacmanNumberOfLivesRemaining()*100;
-    }
 }

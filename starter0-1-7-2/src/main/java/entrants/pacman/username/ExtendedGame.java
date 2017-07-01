@@ -94,25 +94,27 @@ public class ExtendedGame {
     private ArrayList<ScoreClass> EvaluateChains(ArrayList<ArrayList<Integer>> listOfLengths){
         int bestCount = 0;
         ArrayList<ScoreClass> scores = new ArrayList();
+        int stepSize = 5;
 
         for(int i = 0; i < listOfLengths.size(); i++){
             ArrayList<Integer> currentList = listOfLengths.get(i);
             // expect chains with more than 10 pills together
             // select closest chain and score
-            if (currentList.size() > 10){
+
+            if (currentList.size() > stepSize){
                 //check distance to first and last pill - use median for scale
-                int remaining = currentList.size() % 10;
-                int iterationCount = (currentList.size() - remaining) / 10;
+                int remaining = currentList.size() % stepSize;
+                int iterationCount = (currentList.size() - remaining) / stepSize;
 
                 for(int j = 0; j < iterationCount; j++){
-                    int startIndex = j * 10;
-                    ArrayList<Integer> listToConsider = new ArrayList(currentList.subList(j, j+ 10));
+                    int startIndex = j * stepSize;
+                    ArrayList<Integer> listToConsider = new ArrayList(currentList.subList(j, j+ stepSize));
                     ScoreClass scoreToAdd = ExtractScoreFromChain(listToConsider);
                     scores.add(scoreToAdd);
                 }
 
                 if(remaining > 0){
-                    int startIndex = iterationCount * 10 - 1;
+                    int startIndex = iterationCount * stepSize - 1;
                     ArrayList<Integer> listToConsider = new ArrayList(currentList.subList(startIndex, startIndex + remaining));
                     ScoreClass scoreToAdd = ExtractScoreFromChain(listToConsider);
                     scores.add(scoreToAdd);
@@ -131,7 +133,16 @@ public class ExtendedGame {
         ScoreClass bestScore = null;
         double leastDistance = 99999;
         int bestIndex = 0;
-        scores.sort(Comparator.comparing(ScoreClass::getDistance));
+        ArrayList lengthSorted = new ArrayList(scores);
+//        lengthSorted.sort(Comparator.comparing(ScoreClass::getSize).thenComparing(ScoreClass::getDistance));
+//        scores.sort(Comparator.comparing(ScoreClass::getDistance).thenComparing(ScoreClass::getSize));
+        scores.sort(Comparator.comparing(ScoreClass::getDensity));
+//        scores.sort(Comparator.comparing(ScoreClass::getSize).thenComparing(ScoreClass::getDistance)); //.thenComparing(ScoreClass::getSize));
+
+        // balance between length and distance
+
+
+
 
 //        for(int i = 0; i< scores.size(); i++){
 //            ScoreClass currentScore = scores.get(i);
