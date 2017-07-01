@@ -67,31 +67,29 @@ public class MyPacMan extends PacmanController {
         if(state.getGhosts().size() > 0){
             ArrayList<MOVE> movesAway = new ArrayList();
             EnumMap<Constants.GHOST, Ghost> ghosts = state.getGhosts();
-            for(Ghost ghost : ghosts.values()){
+            ArrayList<Ghost> ghostArr = new ArrayList(ghosts.values());
+//            ArrayList<Ghost> ghostArr = new ArrayList();
+
+            for(Ghost ghost : ghostArr){
                 MOVE away = game.getNextMoveAwayFromTarget(pacmanIndex,ghost.currentNodeIndex, lastMove, distanceMeasure);
                 movesAway.add(away);
             }
-            // choose best move away
+
             if (movesAway.size() > 1){
-                MOVE originalMove = movesAway.get(0);
-                MOVE[] awayDirections = new MOVE[movesAway.size()];
-                MOVE[] possibleMoves = game.getPossibleMoves(pacmanIndex);
-                // remove moveaway from possible moves
-                ArrayList<MOVE> run = new ArrayList();
-                run.addAll(Arrays.asList(awayDirections));
+                ArrayList<MOVE> runTowards = new ArrayList();
+                runTowards.addAll(Arrays.asList(game.getPossibleMoves(pacmanIndex)));
+                runTowards.removeAll(movesAway);
 
-
-                // set union -> remove movesaway from possible moves
+                myMove = runTowards.get(0);
                 // select the one which brings the best reward
 
-                for(int i = 0; i < movesAway.size(); i ++){
-                    MOVE nextAway = movesAway.get(i);
-                    if (nextAway != originalMove){
-
-                    }
-                }
             } else {
-                myMove = movesAway.get(0);
+                if (movesAway.size() == 0) {
+                    System.out.println("Error");
+
+                } else {
+                    myMove = movesAway.get(0);
+                }
             }
 
 
