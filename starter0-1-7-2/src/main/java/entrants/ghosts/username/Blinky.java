@@ -8,7 +8,7 @@ import pacman.game.Game;
 /**
  * Created by Piers on 11/11/2015.
  */
-public class Blinky extends IndividualGhostController {
+public class Blinky extends POCommGhost {
 
 
     public Blinky() {

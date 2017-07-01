@@ -97,6 +97,7 @@ public class MyPacMan extends PacmanController {
                     if (runTowards.size() > 1){
                         System.out.println("Dumb move");
                     }
+                    // check for a better move
                     myMove = runTowards.get(0);
                 }
                 // select the one which brings the best reward

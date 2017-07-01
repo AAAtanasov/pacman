@@ -8,7 +8,7 @@ import pacman.game.Game;
 /**
  * Created by Piers on 11/11/2015.
  */
-public class Sue extends IndividualGhostController {
+public class Sue extends POCommGhost {
 
     public Sue() {
         super(Constants.GHOST.SUE);

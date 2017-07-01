@@ -76,10 +76,19 @@ public class ExtendedGame {
 
         // iterate chains and look for longest
         listOfLengths.sort(Comparator.comparing(ArrayList::size));
+        if (listOfLengths.size() > 5){
+
+        } else {
+
+        }
         ArrayList<Integer> bestList = listOfLengths.get(listOfLengths.size() - 1);
 
         // FIx this for end game
         return bestList.get(0);
+    }
+
+    private void EvaluateChains(){
+
     }
 
     private void resetData(Game game){
