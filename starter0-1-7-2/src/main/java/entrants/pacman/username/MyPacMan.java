@@ -109,7 +109,7 @@ public class MyPacMan extends PacmanController {
                         ExtractFeaturesFromState(state, game);
                     }
 
-                    myMove = game.getNextMoveTowardsTarget(pacmanIndex, currentTargetNode, lastMove, distanceMeasure);
+                    myMove = game.getNextMoveTowardsTarget(pacmanIndex, currentTargetNode,  distanceMeasure);
 
                 } else {
                     myMove = movesAway.get(0);
