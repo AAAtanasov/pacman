@@ -27,7 +27,10 @@ public class MyPacMan extends PacmanController {
     private Constants.DM distanceMeasure = Constants.DM.MANHATTAN;
     private int currentTargetNode = 0;
     private ExtendedGame extendedGame = null;
-
+    private static final Random RANDOM = new Random();
+    private static final int SIZE = MOVE.values().length;
+    private static final List<MOVE> VALUES =
+            Collections.unmodifiableList(Arrays.asList(MOVE.values()));
 
 
 //    public Maze currentMaze = game.getCurrentMaze();
@@ -71,8 +74,15 @@ public class MyPacMan extends PacmanController {
 //            ArrayList<Ghost> ghostArr = new ArrayList();
 
             for(Ghost ghost : ghostArr){
-                MOVE away = game.getNextMoveAwayFromTarget(pacmanIndex,ghost.currentNodeIndex, lastMove, distanceMeasure);
-                movesAway.add(away);
+                double distanceToGhost = game.getDistance(pacmanIndex, ghost.currentNodeIndex, distanceMeasure);
+                System.out.println(distanceToGhost);
+                if (ghost.edibleTime > 0){
+                    int asdas = 1;
+                }
+                if (ghost.edibleTime == 0){
+                    MOVE away = game.getNextMoveAwayFromTarget(pacmanIndex,ghost.currentNodeIndex, distanceMeasure);
+                    movesAway.add(away);
+                }
             }
 
             if (movesAway.size() > 1){
@@ -80,12 +90,26 @@ public class MyPacMan extends PacmanController {
                 runTowards.addAll(Arrays.asList(game.getPossibleMoves(pacmanIndex)));
                 runTowards.removeAll(movesAway);
 
-                myMove = runTowards.get(0);
+                if(runTowards.size() == 0){
+                    myMove = VALUES.get(RANDOM.nextInt(SIZE));
+                } else {
+                    // check better move
+                    if (runTowards.size() > 1){
+                        System.out.println("Dumb move");
+                    }
+                    myMove = runTowards.get(0);
+                }
                 // select the one which brings the best reward
 
             } else {
                 if (movesAway.size() == 0) {
-                    System.out.println("Error");
+//                    System.out.println("Error");
+//                    myMove = VALUES.get(RANDOM.nextInt(SIZE));
+                    if (currentTargetNode == 0 || pacmanIndex == currentTargetNode){
+                        ExtractFeaturesFromState(state, game);
+                    }
+
+                    myMove = game.getNextMoveTowardsTarget(pacmanIndex, currentTargetNode, lastMove, distanceMeasure);
 
                 } else {
                     myMove = movesAway.get(0);
