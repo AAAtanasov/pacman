@@ -142,17 +142,6 @@ public class ExtendedGame {
         // balance between length and distance
 
 
-
-
-//        for(int i = 0; i< scores.size(); i++){
-//            ScoreClass currentScore = scores.get(i);
-//            if(currentScore.getDistance() < leastDistance){
-//                leastDistance = currentScore.getDistance();
-//                bestScore = currentScore;
-//                bestIndex = i;
-//            }
-//        }
-
         return scores.get(0).getClosestNode();
     }
 
@@ -166,6 +155,7 @@ public class ExtendedGame {
                 lastElementAsNode, distanceMeasure);
 
         double distanceMeasure = (distanceToFirst + distanceToLast) / 2;
+//        double summedDistances =
         ScoreClass toAdd = new ScoreClass(distanceMeasure, currentList.size(), distanceToFirst, distanceToLast,
                 firstElementAsNode, lastElementAsNode);
         return toAdd;

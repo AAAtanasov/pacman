@@ -64,8 +64,38 @@ public class MyPacMan extends PacmanController {
             for(Ghost ghost : ghostArr){
                 double distanceToGhost = game.getDistance(pacmanIndex, ghost.currentNodeIndex, distanceMeasure);
                 if (ghost.edibleTime == 0 && distanceToGhost < 35){
+                    MOVE towardsPowerPill = MOVE.NEUTRAL;
+//                    POSSIBLE BREAKING POINT
+                    int[] visiblePowerPill = game.getActivePowerPillsIndices();
+                    if(visiblePowerPill.length > 1){
+                        double shortestDistanse = 9999;
+                        int powerPillNodeIndex = 0;
+                        for (int powerPillIndex : visiblePowerPill){
+                            double currDistance = game.getDistance(pacmanIndex, powerPillIndex, distanceMeasure);
+                            if (currDistance < shortestDistanse){
+                                shortestDistanse = currDistance;
+                                powerPillNodeIndex = powerPillIndex;
+                            }
+                        }
+
+                        towardsPowerPill = game.getNextMoveTowardsTarget(pacmanIndex, powerPillNodeIndex,
+                                distanceMeasure);
+
+                    } else if(visiblePowerPill.length == 1) {
+                        towardsPowerPill = game.getNextMoveTowardsTarget(pacmanIndex, visiblePowerPill[0],
+                                distanceMeasure);
+                    }
+
                     MOVE away = game.getNextMoveAwayFromTarget(pacmanIndex,ghost.currentNodeIndex, distanceMeasure);
+
+                    if (towardsPowerPill != MOVE.NEUTRAL && towardsPowerPill != GetOposite(away)){
+                        return towardsPowerPill;
+                    }
+
                     movesAway.add(away);
+                } else if(ghost.edibleTime > 20 && distanceToGhost < 35){
+                    MOVE chase = game.getNextMoveTowardsTarget(pacmanIndex, ghost.currentNodeIndex, distanceMeasure);
+                    return chase;
                 }
             }
 
@@ -198,6 +228,18 @@ public class MyPacMan extends PacmanController {
         // see where there are many pills
 
 
+    }
+
+    private MOVE GetOposite(MOVE move){
+        if (move == MOVE.DOWN){
+            return MOVE.UP;
+        } else if (move == MOVE.LEFT){
+            return MOVE.RIGHT;
+        } else if (move == MOVE.RIGHT){
+            return MOVE.LEFT;
+        } else {
+            return MOVE.DOWN;
+        }
     }
 
     public void FirstIteration(Game game) {

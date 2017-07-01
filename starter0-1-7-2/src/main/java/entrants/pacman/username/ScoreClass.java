@@ -42,7 +42,8 @@ public class ScoreClass {
     public double getDensity(){
         double closestNode = this.distanceToFirst > this.distanceToLast ? this.distanceToFirst : this.distanceToLast;
         double score = (closestNode + this.chainSize) / this.chainSize;
-
+//        double density = ((this.distanceToFirst + this.distanceToLast) / this.chainSize - this.distanceToFirst) /
+//                (this.distanceToLast - this.distanceToFirst);
         return score;
     }
 
