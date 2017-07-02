@@ -27,10 +27,6 @@ public class Blinky extends CommonGhost {
 
     public void SetTargetNode(int node){
         this.targetNode = node;
-
     }
 
-    public int GetTargetNode(int node) {
-        return this.targetNode;
-    }
 }

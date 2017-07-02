@@ -134,7 +134,7 @@ public class ExtendedGame {
         // iterate chains and look for longest
         ArrayList<ScoreClass> evaluation = EvaluateChains(pointsOfInterest, ghostNode);
         int bestTarget = -1;
-        if (pacmanIndex != -1){
+        if (pacmanIndex != -1 ){
             return pacmanIndex;
         }
 
@@ -247,17 +247,21 @@ public class ExtendedGame {
         } else {
             if (decisionIndex == 1){
                 scores.sort(Comparator.comparing(ScoreClass::getDensity));
-                return scores.get(0).getClosestNode();
+                return scores.get(0).getFarthestNode();
 
             } else if (decisionIndex == 2) {
                 scores.sort(Comparator.comparing(ScoreClass::getDistance));
                 return scores.get(intValue(scores.size() / 2)).getClosestNode();
             } else if (decisionIndex == 3){
+                int newRand = rnd.nextInt(scores.size());
+
                 scores.sort(Comparator.comparing(ScoreClass::getDistance));
-                return scores.get(scores.size() - 1).getClosestNode();
+                return scores.get(newRand).getClosestNode();
             } else {
+                int newRand = rnd.nextInt(scores.size());
+
                 scores.sort(Comparator.comparing(ScoreClass::getSize).thenComparing(ScoreClass::getDistance));
-                return scores.get(0).getFarthestNode();
+                return scores.get(newRand).getClosestNode();
             }
         }
     }

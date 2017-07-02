@@ -16,6 +16,6 @@ public class Inky extends CommonGhost {
 
     @Override
     public Constants.MOVE getMove(Game game, long timeDue) {
-        return null;
+        return super.getMove(game, timeDue);
     }
 }

@@ -17,7 +17,8 @@ import java.util.Random;
  */
 
 public class CommonGhost extends IndividualGhostController {
-    private final static float CONSISTENCY = 0.9f;    //attack Ms Pac-Man with this probability
+    private final static float CONSISTENCY = 0.7f;    //attack Ms Pac-Man with this probability
+
     private final static int PILL_PROXIMITY = 15;        //if Ms Pac-Man is this close to a power pill, back away
     Random rnd = new Random();
     private int TICK_THRESHOLD;
@@ -28,8 +29,11 @@ public class CommonGhost extends IndividualGhostController {
     private ArrayList<Integer> pillsInMaze = new ArrayList();
     private ArrayList<Integer> powerPillsInMaze = new ArrayList();
     private int targetNode = 0;
-    public void SetTargetNode(int node){
-        this.targetNode = node;
+    public void SetTargetNode(int node, CommonGhost ghost){
+        ghost.targetNode = node;
+    }
+    public int GetTargetNode(CommonGhost ghost){
+        return ghost.targetNode;
     }
 
     public CommonGhost(Constants.GHOST ghost) {
@@ -70,6 +74,7 @@ public class CommonGhost extends IndividualGhostController {
             if (messenger != null) {
                 messenger.addMessage(new BasicMessage(ghost, null, BasicMessage.MessageType.PACMAN_SEEN, pacmanIndex, game.getCurrentLevelTime()));
             }
+
         }
 
         // Has anybody else seen PacMan if we haven't?
@@ -79,6 +84,10 @@ public class CommonGhost extends IndividualGhostController {
                     if (message.getTick() > tickSeen && message.getTick() < currentTick) { // Only if it is newer information
                         lastPacmanIndex = message.getData();
                         tickSeen = message.getTick();
+                        if(ghost == Constants.GHOST.BLINKY){
+                            Constants.MOVE next = game.getApproximateNextMoveTowardsTarget(game.getGhostCurrentNodeIndex(ghost),
+                                    lastPacmanIndex, game.getGhostLastMoveMade(ghost), Constants.DM.MANHATTAN);
+                        }
                     }
                 }
             }
@@ -87,7 +96,7 @@ public class CommonGhost extends IndividualGhostController {
             pacmanIndex = lastPacmanIndex;
         }
 
-        Boolean requiresAction = game.doesGhostRequireAction(ghost);
+        Boolean requiresAction = true;
         if (requiresAction != null && requiresAction)        //if ghost requires an action
         {
             if (pacmanIndex != -1) {
@@ -101,15 +110,13 @@ public class CommonGhost extends IndividualGhostController {
                         System.out.println(pacmanIndex + " : " + currentIndex);
                     }
                 } else {
-                    if (rnd.nextFloat() < CONSISTENCY) {            //attack Ms Pac-Man otherwise (with certain probability)
-                        try {
-                            Constants.MOVE move = game.getApproximateNextMoveTowardsTarget(game.getGhostCurrentNodeIndex(ghost),
-                                    pacmanIndex, game.getGhostLastMoveMade(ghost), Constants.DM.PATH);
-                            return move;
-                        } catch (ArrayIndexOutOfBoundsException e) {
-                            System.out.println(e);
-                            System.out.println(pacmanIndex + " : " + currentIndex);
-                        }
+                    try {
+                        Constants.MOVE move = game.getApproximateNextMoveTowardsTarget(game.getGhostCurrentNodeIndex(ghost),
+                                pacmanIndex, game.getGhostLastMoveMade(ghost), Constants.DM.PATH);
+                        return move;
+                    } catch (ArrayIndexOutOfBoundsException e) {
+                        System.out.println(e);
+                        System.out.println(pacmanIndex + " : " + currentIndex);
                     }
                 }
             } else {
@@ -117,7 +124,7 @@ public class CommonGhost extends IndividualGhostController {
                 String ghostType = ghost.className;
                 int specificIndex = GetGhostSpecificTask(ghost.className);
 
-                int pillIndex = this.extendedGame.goToPositionForGhost(position, specificIndex, pacmanIndex);
+                int pillIndex = this.extendedGame.goToPositionForGhost(position, specificIndex, lastPacmanIndex);
                 if(pillIndex == -1){
                     Constants.MOVE[] possibleMoves = game.getPossibleMoves(game.getGhostCurrentNodeIndex(ghost), game.getGhostLastMoveMade(ghost));
                     return possibleMoves[rnd.nextInt(possibleMoves.length)];
