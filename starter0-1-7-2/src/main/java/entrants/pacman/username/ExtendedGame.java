@@ -78,7 +78,25 @@ public class ExtendedGame {
 
         // iterate chains and look for longest
         ArrayList<ScoreClass> evaluation = EvaluateChains(listOfLengths);
-        int bestTarget = GetBestCurrentTarget(evaluation);
+        int bestTarget = -1;
+        if (evaluation.size() > 1){
+            bestTarget = GetBestCurrentTarget(evaluation);
+        } else {
+            bestTarget = evaluation.get(0).getClosestNode();
+        }
+
+        if(bestTarget == -1){
+            System.out.print("No clusters");
+            int index = 0;
+            for (int i = 0; i < this.pillIsStillAvailable.length; i ++){
+                if(this.pillIsStillAvailable[i]){
+                    index = i;
+                    break;
+                }
+            }
+            bestTarget = this.pillsInMaze.get(index);
+
+        }
 //        listOfLengths.sort(Comparator.comparing(ArrayList::size));
 //        if (listOfLengths.size() > 5){
 //

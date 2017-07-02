@@ -9,7 +9,7 @@ import pacman.game.Game;
  * Created by Piers on 11/11/2015.
  */
 public class Blinky extends CommonGhost {
-
+    private int targetNode = 0;
 
     public Blinky() {
         super(Constants.GHOST.BLINKY);
@@ -17,7 +17,7 @@ public class Blinky extends CommonGhost {
 
     @Override
     public Constants.MOVE getMove(Game game, long timeDue) {
-        System.out.print("left");
+//        System.out.print("left");
         return Constants.MOVE.LEFT;
     }
 }

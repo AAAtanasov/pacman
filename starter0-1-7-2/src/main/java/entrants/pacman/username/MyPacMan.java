@@ -32,6 +32,7 @@ public class MyPacMan extends PacmanController {
     private static final List<MOVE> VALUES =
             Collections.unmodifiableList(Arrays.asList(MOVE.values()));
     private int gameLevel = -1;
+    private final static int PILL_PROXIMITY = 15;
 
 
 //    public Maze currentMaze = game.getCurrentMaze();
@@ -63,10 +64,11 @@ public class MyPacMan extends PacmanController {
 
             for(Ghost ghost : ghostArr){
                 double distanceToGhost = game.getDistance(pacmanIndex, ghost.currentNodeIndex, distanceMeasure);
-                if (ghost.edibleTime == 0 && distanceToGhost < 35){
+                if (ghost.edibleTime < 5 && distanceToGhost < 35){
                     MOVE towardsPowerPill = MOVE.NEUTRAL;
 //                    POSSIBLE BREAKING POINT
                     int[] visiblePowerPill = game.getActivePowerPillsIndices();
+                    int isCloseToPower = closeToPower(game, pacmanIndex);
                     if(visiblePowerPill.length > 1){
                         double shortestDistanse = 9999;
                         int powerPillNodeIndex = 0;
@@ -84,6 +86,9 @@ public class MyPacMan extends PacmanController {
                     } else if(visiblePowerPill.length == 1) {
                         towardsPowerPill = game.getNextMoveTowardsTarget(pacmanIndex, visiblePowerPill[0],
                                 distanceMeasure);
+                    } else if (isCloseToPower != -1){
+                        towardsPowerPill = game.getApproximateNextMoveTowardsTarget(pacmanIndex, isCloseToPower,
+                                lastMove, distanceMeasure);
                     }
 
                     MOVE away = game.getNextMoveAwayFromTarget(pacmanIndex,ghost.currentNodeIndex, distanceMeasure);
@@ -127,16 +132,12 @@ public class MyPacMan extends PacmanController {
                     }
 
                 }
-                // select the one which brings the best reward
 
             } else {
                 if (movesAway.size() == 0) {
-//                    System.out.println("Error");
-//                    myMove = VALUES.get(RANDOM.nextInt(SIZE));
                     if (currentTargetNode == 0 || pacmanIndex == currentTargetNode){
                         ExtractFeaturesFromState(state, game);
                     }
-
                     myMove = game.getNextMoveTowardsTarget(pacmanIndex, currentTargetNode,  distanceMeasure);
 
                 } else {
@@ -144,33 +145,30 @@ public class MyPacMan extends PacmanController {
                 }
             }
 
-
         } else {
-//            if (currentTargetNode == 0 || pacmanIndex == currentTargetNode){
-//                ExtractFeaturesFromState(state, game);
-//            } else if (game.isJunction(pacmanIndex)){
-//                ExtractFeaturesFromState(state, game);
-//            }
             ExtractFeaturesFromState(state, game);
-
             myMove = game.getNextMoveTowardsTarget(pacmanIndex, currentTargetNode, lastMove, distanceMeasure);
         }
-        //check if target is achieved
-
-        //check if pill will be eaten
-
 
         return myMove;
     }
 
-    private int FindBestTarget(Game game, int pillIndex){
-//        Boolean isPillAvailable = this.extendedGame.isPillStillAvailable(pillIndex);
-//        if (isPillAvailable) {
-//            return pillIndex;
-//        } else {
-//        }
-        return this.extendedGame.goToPill();
+    private int closeToPower(Game game, int pacmanIndex) {
+        int[] powerPills = game.getPowerPillIndices();
 
+        for (int i = 0; i < powerPills.length; i++) {
+            Boolean powerPillStillAvailable = game.isPowerPillStillAvailable(i);
+            try{
+                if (powerPillStillAvailable && game.getShortestPathDistance(powerPills[i], pacmanIndex) < PILL_PROXIMITY) {
+                    return powerPills[i];
+                }
+            } catch (NullPointerException ex){
+                return -1;
+            }
+
+        }
+
+        return -1;
     }
 
     public void ExtractFeaturesFromState(GameInfo info, Game game) {
@@ -178,57 +176,28 @@ public class MyPacMan extends PacmanController {
         int[] pill_nodes = game.getActivePillsIndices();
         if (pill_nodes.length == 0){
             int pillIndex = this.extendedGame.goToPill();
-//            int asdasda = this.pillsInMaze.get(pillIndex);
             this.currentTargetNode = pillIndex;
-            int test = 1;
 
         } else {
-            int maxOccurances = 0;
-
             int[] distanses = new int[pill_nodes.length];
             for (int i = 0; i < pill_nodes.length; i ++){
                 distanses[i] = game.getManhattanDistance(pacmanIndex, pill_nodes[i]);
             }
 
-            int[] copy = distanses.clone();
             Arrays.sort(distanses);
             int min = Arrays.stream(distanses).min().getAsInt();
             int max = Arrays.stream(distanses).max().getAsInt();
-            int indexOfMaxa = Arrays.binarySearch(distanses, max);
-            if (indexOfMaxa < distanses.length - 1){
-                maxOccurances = distanses.length - indexOfMaxa; // error prone
+            if (min > 20){
+                int pillIndex = this.extendedGame.goToPill();
+                this.currentTargetNode = pillIndex;
+
+            } else {
+                int valueToCompare = max < 30 ? max : min;
+                int indexOfMaxa = Arrays.binarySearch(distanses, valueToCompare);
+                this.currentTargetNode = pill_nodes[indexOfMaxa];
             }
 
-            for (Integer item : copy) {
-                if (item == max){
-                    maxOccurances += 1;
-                }
-            }
-            this.currentTargetNode = pill_nodes[indexOfMaxa];
         }
-
-
-
-
-
-
-        // compare distances
-        // look for sequences
-        int test = 1;
-        // compute each distance to pills
-        // assign to cost function
-
-
-        //check for ghosts -> if present calculate distance
-        // assign to cost function
-        //check for powerpills -> if present calclulate distance
-        // assign to cost function
-
-        // get junctions
-        // get current state
-        // see where there are many pills
-
-
     }
 
     private MOVE GetOposite(MOVE move){
