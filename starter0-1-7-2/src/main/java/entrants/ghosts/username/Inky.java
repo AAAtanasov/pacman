@@ -8,7 +8,7 @@ import pacman.game.Game;
 /**
  * Created by Piers on 11/11/2015.
  */
-public class Inky extends POCommGhost {
+public class Inky extends CommonGhost {
 
     public Inky() {
         super(Constants.GHOST.INKY);

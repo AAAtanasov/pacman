@@ -8,7 +8,7 @@ import pacman.game.Game;
 /**
  * Created by Piers on 11/11/2015.
  */
-public class Blinky extends POCommGhost {
+public class Blinky extends CommonGhost {
 
 
     public Blinky() {
@@ -17,6 +17,7 @@ public class Blinky extends POCommGhost {
 
     @Override
     public Constants.MOVE getMove(Game game, long timeDue) {
-        return null;
+        System.out.print("left");
+        return Constants.MOVE.LEFT;
     }
 }

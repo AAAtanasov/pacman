@@ -106,6 +106,7 @@ public class MyPacMan extends PacmanController {
 
                 if(runTowards.size() == 0){
                     myMove = VALUES.get(RANDOM.nextInt(SIZE));
+                    System.out.println("Random move");
                 } else {
                     // check better move
                     if (runTowards.size() > 1){
