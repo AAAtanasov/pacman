@@ -39,6 +39,14 @@ public class ScoreClass {
         }
     }
 
+    public int getFarthestNode(){
+        if(this.distanceToFirst > this.distanceToLast){
+            return this.lastNodeIndex;
+        } else {
+            return this.firstNodeIndex;
+        }
+    }
+
     public double getDensity(){
         double closestNode = this.distanceToFirst > this.distanceToLast ? this.distanceToFirst : this.distanceToLast;
         double farthest = this.distanceToFirst > this.distanceToLast ? this.distanceToLast : this.distanceToFirst;

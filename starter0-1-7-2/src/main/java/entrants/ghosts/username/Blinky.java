@@ -18,6 +18,19 @@ public class Blinky extends CommonGhost {
     @Override
     public Constants.MOVE getMove(Game game, long timeDue) {
 //        System.out.print("left");
-        return Constants.MOVE.LEFT;
+//        return Constants.MOVE.LEFT;
+//        int currentNode = game.getGhostCurrentNodeIndex(Constants.GHOST.BLINKY);
+
+
+        return null;
+    }
+
+    public void SetTargetNode(int node){
+        this.targetNode = node;
+
+    }
+
+    public int GetTargetNode(int node) {
+        return this.targetNode;
     }
 }

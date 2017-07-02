@@ -187,12 +187,12 @@ public class MyPacMan extends PacmanController {
             Arrays.sort(distanses);
             int min = Arrays.stream(distanses).min().getAsInt();
             int max = Arrays.stream(distanses).max().getAsInt();
-            if (min > 20){
+            if (min > 30){
                 int pillIndex = this.extendedGame.goToPill();
                 this.currentTargetNode = pillIndex;
 
             } else {
-                int valueToCompare = max < 30 ? max : min;
+                int valueToCompare = max > 40 ? max : min;
                 int indexOfMaxa = Arrays.binarySearch(distanses, valueToCompare);
                 this.currentTargetNode = pill_nodes[indexOfMaxa];
             }

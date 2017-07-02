@@ -27,14 +27,20 @@ public class CommonGhost extends IndividualGhostController {
     private ExtendedGame extendedGame = null;
     private ArrayList<Integer> pillsInMaze = new ArrayList();
     private ArrayList<Integer> powerPillsInMaze = new ArrayList();
+    private int targetNode = 0;
+    public void SetTargetNode(int node){
+        this.targetNode = node;
+    }
 
     public CommonGhost(Constants.GHOST ghost) {
         this(ghost, 5);
+        this.targetNode = 0;
     }
 
     public CommonGhost(Constants.GHOST ghost, int TICK_THRESHOLD) {
         super(ghost);
         this.TICK_THRESHOLD = TICK_THRESHOLD;
+
     }
 
     @Override
@@ -107,11 +113,34 @@ public class CommonGhost extends IndividualGhostController {
                     }
                 }
             } else {
-                Constants.MOVE[] possibleMoves = game.getPossibleMoves(game.getGhostCurrentNodeIndex(ghost), game.getGhostLastMoveMade(ghost));
-                return possibleMoves[rnd.nextInt(possibleMoves.length)];
+                int position = game.getGhostCurrentNodeIndex(ghost);
+                String ghostType = ghost.className;
+                int specificIndex = GetGhostSpecificTask(ghost.className);
+
+                int pillIndex = this.extendedGame.goToPositionForGhost(position, specificIndex, pacmanIndex);
+                if(pillIndex == -1){
+                    Constants.MOVE[] possibleMoves = game.getPossibleMoves(game.getGhostCurrentNodeIndex(ghost), game.getGhostLastMoveMade(ghost));
+                    return possibleMoves[rnd.nextInt(possibleMoves.length)];
+                } else {
+                    Constants.MOVE last = game.getGhostLastMoveMade(ghost);
+                    return  game.getNextMoveTowardsTarget(position, pillIndex, last, Constants.DM.PATH);
+                }
             }
         }
         return null;
+    }
+
+    private int GetGhostSpecificTask(String ghostName){
+        if (ghostName == Constants.GHOST.BLINKY.name()){
+            return 1;
+        } else if (ghostName == Constants.GHOST.INKY.name()){
+            return 2;
+        } else if (ghostName == Constants.GHOST.PINKY.name()){
+            return 3;
+        } else {
+            return 4;
+        }
+
     }
 
     //This helper function checks if Ms Pac-Man is close to an available power pill
