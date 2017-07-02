@@ -35,7 +35,11 @@ public class Main {
         controllers.put(GHOST.PINKY, pinky);
         controllers.put(GHOST.SUE, sue);
 
+//        controllers.put(GHOST.INKY, new Inky());
+//        controllers.put(GHOST.BLINKY, new Blinky());
+//        controllers.put(GHOST.PINKY, new Pinky());
+//        controllers.put(GHOST.SUE, new Sue());
+
         executor.runGameTimed(new MyPacMan(), new MASController(controllers), true);
-//        executor.ru
     }
 }

@@ -47,7 +47,8 @@ public class ScoreClass {
         }
     }
 
-    //Used to measure the value of each cluster, where 
+    //Used to measure the value of each cluster, where each cluster is evaluated as the size of the cluster multiplied
+    // by it's contents and is divided based on the node which is furthest away.
     public double getDensity(){
         double closestNode = this.distanceToFirst > this.distanceToLast ? this.distanceToFirst : this.distanceToLast;
         double farthest = this.distanceToFirst > this.distanceToLast ? this.distanceToLast : this.distanceToFirst;
