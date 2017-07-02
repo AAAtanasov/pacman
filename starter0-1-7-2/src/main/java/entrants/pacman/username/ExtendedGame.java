@@ -26,6 +26,7 @@ public class ExtendedGame {
     public ExtendedGame(){
     }
 
+    // Initialization phase
     public void initGame(Game game, ArrayList<Integer> pillsInMaze){
         this.game = game;
         this.pillsInMaze = pillsInMaze;
@@ -34,6 +35,7 @@ public class ExtendedGame {
         resetPowerPills();
     }
 
+    // Updates the state of saved pills
     public void updateGame(Game game){
         this.game = game;
 
@@ -62,6 +64,7 @@ public class ExtendedGame {
         }
     }
 
+    // Check the global space with pills
     public int goToPill(){
         ArrayList<Integer> bestChain = new ArrayList();
         ArrayList<ArrayList<Integer>> listOfLengths = new ArrayList();
@@ -71,6 +74,7 @@ public class ExtendedGame {
             // iterate over all pills
             // each true chain is stored
             // on false interupt store chain
+            // Assumption is that pills clustered together will have sequential indexes
             if (this.pillIsStillAvailable[i] == true){
                 bestChain.add(i);
                 bestCount ++;
@@ -93,6 +97,7 @@ public class ExtendedGame {
         }
 
         if(bestTarget == -1){
+            // When no clusters have been computed make the first available pill the next target
             System.out.print("No clusters");
             int index = 0;
             for (int i = 0; i < this.pillIsStillAvailable.length; i ++){
@@ -109,15 +114,14 @@ public class ExtendedGame {
         return bestTarget;
     }
 
+    // Checks the global solution and tries to go to pills which have not been collected yet
+    // and guard them. Method is used for ghosts.
     public int goToPositionForGhost(int ghostNode, int decisionIndex, int pacmanIndex){
         ArrayList<Integer> bestPosition = new ArrayList();
         ArrayList<ArrayList<Integer>> pointsOfInterest = new ArrayList();
         int bestCount = 0;
 
         for(int i = 0; i < this.pillIsStillAvailable.length; i++){
-            // iterate over all pills
-            // each true chain is stored
-            // on false interupt store chain
             if (this.pillIsStillAvailable[i] == true){
                 bestPosition.add(i);
                 bestCount ++;
@@ -139,11 +143,13 @@ public class ExtendedGame {
         }
 
         if (evaluation.size() == 0){
+            //First ghost just selects a random junction index
             if (decisionIndex < 2){
                 int[] junctions = game.getJunctionIndices();
                 bestTarget = junctions[rnd.nextInt(junctions.length)];
 
             } else {
+                //If no clusters have been found try and guard the power pills
                 Boolean isPowerPillAvailable = this.powerPillIsStillAvailable[decisionIndex -1];
                 if (isPowerPillAvailable){
                     bestTarget = this.powerPillsInMaze[decisionIndex - 1];
@@ -170,14 +176,17 @@ public class ExtendedGame {
         return bestTarget;
     }
 
+    //After extraction of the available pills, they are being segmented in sub lists, where each segment
+    //is used to build a Score of the cluster, which contain the furhest and closest nodes, making assumptions
+    // that they are following one sequence. Possible drawback for three of four way junctions.
     private ArrayList<ScoreClass> EvaluateChains(ArrayList<ArrayList<Integer>> listOfLengths, int ghostPosition){
         int bestCount = 0;
         ArrayList<ScoreClass> scores = new ArrayList();
-        int stepSize = 25;
+        int stepSize = 25; // Used to determine cluster size
 
         for(int i = 0; i < listOfLengths.size(); i++){
             ArrayList<Integer> currentList = listOfLengths.get(i);
-            // expect chains with more than 10 pills together
+            // expect chains with more than N pills together
             // select closest chain and score
 
             if (currentList.size() > stepSize){
@@ -225,23 +234,13 @@ public class ExtendedGame {
     }
 
     private int GetBestCurrentTarget(ArrayList<ScoreClass> scores){
-        ScoreClass bestScore = null;
-        double leastDistance = 99999;
-        int bestIndex = 0;
-        ArrayList lengthSorted = new ArrayList(scores);
-//        lengthSorted.sort(Comparator.comparing(ScoreClass::getSize).thenComparing(ScoreClass::getDistance));
-//        scores.sort(Comparator.comparing(ScoreClass::getDistance).thenComparing(ScoreClass::getSize));
         scores.sort(Comparator.comparing(ScoreClass::getDensity));
-//        scores.sort(Comparator.comparing(ScoreClass::getSize).thenComparing(ScoreClass::getDistance)); //.thenComparing(ScoreClass::getSize));
-
-        // balance between length and distance
-
 
         return scores.get(0).getClosestNode();
     }
 
+    //Give different targets to each ghost, where each one compares different values
     private int GestBestCurrentTargetWithDecision(ArrayList<ScoreClass> scores, int decisionIndex){
-        ArrayList lengthSorted = new ArrayList(scores);
         if (scores.size() == 0){
             return -1;
         } else {
@@ -266,6 +265,7 @@ public class ExtendedGame {
         }
     }
 
+    // Used to construct the ScoreClass object for Mrs. Pacman
     private ScoreClass ExtractScoreFromChain(ArrayList<Integer> currentList){
 
         int firstElementAsNode = this.pillsInMaze.get(currentList.get(0));
@@ -282,6 +282,7 @@ public class ExtendedGame {
         return toAdd;
     }
 
+    // Used to construct the ScoreClass object for the ghosts
     private ScoreClass ExtractScoreFromChainForGhost(ArrayList<Integer> currentList, int ghostPosition){
 
         int firstElementAsNode = this.pillsInMaze.get(currentList.get(0));

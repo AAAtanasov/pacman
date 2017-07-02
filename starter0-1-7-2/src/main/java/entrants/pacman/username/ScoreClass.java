@@ -47,11 +47,13 @@ public class ScoreClass {
         }
     }
 
+    //Used to measure the value of each cluster, where 
     public double getDensity(){
         double closestNode = this.distanceToFirst > this.distanceToLast ? this.distanceToFirst : this.distanceToLast;
         double farthest = this.distanceToFirst > this.distanceToLast ? this.distanceToLast : this.distanceToFirst;
 
         double score = (closestNode * this.chainSize) / farthest;
+//        double score = (closestNode + this.chainSize) / this.chainSize;
 
 //        double density = ((this.distanceToFirst + this.distanceToLast) / this.chainSize - this.distanceToFirst) /
 //                (this.distanceToLast - this.distanceToFirst);

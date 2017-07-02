@@ -29,6 +29,8 @@ public class CommonGhost extends IndividualGhostController {
     private ArrayList<Integer> pillsInMaze = new ArrayList();
     private ArrayList<Integer> powerPillsInMaze = new ArrayList();
     private int targetNode = 0;
+
+    //Ideally each ghost should have target nodes and try to get to them
     public void SetTargetNode(int node, CommonGhost ghost){
         ghost.targetNode = node;
     }
@@ -49,6 +51,7 @@ public class CommonGhost extends IndividualGhostController {
 
     @Override
     public Constants.MOVE getMove(Game game, long timeDue) {
+        // Initial steps for initializing the pill arrays
         int currentLevel = game.getCurrentLevel();
         if (currentLevel != gameLevel){
             FirstIteration(game);
@@ -85,8 +88,11 @@ public class CommonGhost extends IndividualGhostController {
                         lastPacmanIndex = message.getData();
                         tickSeen = message.getTick();
                         if(ghost == Constants.GHOST.BLINKY){
+                            // Should be done in the Blinky class
                             Constants.MOVE next = game.getApproximateNextMoveTowardsTarget(game.getGhostCurrentNodeIndex(ghost),
                                     lastPacmanIndex, game.getGhostLastMoveMade(ghost), Constants.DM.MANHATTAN);
+
+                            return next;
                         }
                     }
                 }
@@ -137,6 +143,7 @@ public class CommonGhost extends IndividualGhostController {
         return null;
     }
 
+    //A trashy way to get each ghost to have a different behavior
     private int GetGhostSpecificTask(String ghostName){
         if (ghostName == Constants.GHOST.BLINKY.name()){
             return 1;
@@ -171,6 +178,7 @@ public class CommonGhost extends IndividualGhostController {
         return false;
     }
 
+    //Used to build the pills arrays
     public void FirstIteration(Game game) {
         int[] allPills = game.getPillIndices();
         int[] allPowerPills = game.getPowerPillIndices();

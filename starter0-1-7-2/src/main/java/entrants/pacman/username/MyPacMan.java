@@ -52,8 +52,6 @@ public class MyPacMan extends PacmanController {
         int pacmanIndex = state.getPacman().currentNodeIndex;
         MOVE lastMove = state.getPacman().lastMoveMade;
 
-        MOVE test = game.getApproximateNextMoveTowardsTarget(pacmanIndex, 0, lastMove, distanceMeasure );
-
         myMove = MOVE.NEUTRAL;
 
         //check if ghost is present
@@ -61,17 +59,20 @@ public class MyPacMan extends PacmanController {
             ArrayList<MOVE> movesAway = new ArrayList();
             EnumMap<Constants.GHOST, Ghost> ghosts = state.getGhosts();
             ArrayList<Ghost> ghostArr = new ArrayList(ghosts.values());
+            //Iterate visible ghosts and choose a move which does not collide with them
+            MOVE towardsPowerPill = MOVE.NEUTRAL;
 
             for(Ghost ghost : ghostArr){
                 double distanceToGhost = game.getDistance(pacmanIndex, ghost.currentNodeIndex, distanceMeasure);
+                // If ghosts are far enough there is no reason to run
                 if (ghost.edibleTime < 5 && distanceToGhost < 35){
-                    MOVE towardsPowerPill = MOVE.NEUTRAL;
-//                    POSSIBLE BREAKING POINT
+                    // Check if power pill is available and in sight
                     int[] visiblePowerPill = game.getActivePowerPillsIndices();
                     int isCloseToPower = closeToPower(game, pacmanIndex);
                     if(visiblePowerPill.length > 1){
                         double shortestDistanse = 9999;
                         int powerPillNodeIndex = 0;
+                        //Find shortest path to available power pill
                         for (int powerPillIndex : visiblePowerPill){
                             double currDistance = game.getDistance(pacmanIndex, powerPillIndex, distanceMeasure);
                             if (currDistance < shortestDistanse){
@@ -91,11 +92,10 @@ public class MyPacMan extends PacmanController {
                                 lastMove, distanceMeasure);
                     }
 
+                    //
                     MOVE away = game.getNextMoveAwayFromTarget(pacmanIndex,ghost.currentNodeIndex, distanceMeasure);
 
-                    if (towardsPowerPill != MOVE.NEUTRAL && towardsPowerPill != GetOposite(away)){
-                        return towardsPowerPill;
-                    }
+
 
                     movesAway.add(away);
                 } else if(ghost.edibleTime > 20 && distanceToGhost < 35){
@@ -110,11 +110,24 @@ public class MyPacMan extends PacmanController {
                 runTowards.removeAll(movesAway);
 
                 if(runTowards.size() == 0){
+                    //Pacman is boxed in, accepts fate and hopes for the best
                     myMove = VALUES.get(RANDOM.nextInt(SIZE));
                     System.out.println("Random move");
                 } else {
                     // check better move
+                    Boolean acceptableToGoForPowerPill = true;
+                    for (MOVE currMove : runTowards){
+                        // Check if towards power pill is an acceptable move
+                        if (towardsPowerPill == MOVE.NEUTRAL || towardsPowerPill == GetOposite(currMove)){
+                            acceptableToGoForPowerPill = false;
+                        }
+                    }
+                    if (acceptableToGoForPowerPill){
+                        return towardsPowerPill;
+                    }
+
                     if (runTowards.size() > 1){
+                        //Has more than one possible ways out, compute possibilities and tries to select acceptable one
                         System.out.println("Dumb move");
                         System.out.println(runTowards.get(0));
 
@@ -127,6 +140,7 @@ public class MyPacMan extends PacmanController {
                         System.out.println("Suggested move used: " + myMove.toString());
 
                     } else {
+                        //Perform first acceptable move
                         myMove = runTowards.get(0);
 
                     }
@@ -135,6 +149,7 @@ public class MyPacMan extends PacmanController {
 
             } else {
                 if (movesAway.size() == 0) {
+                    //If pacman hasn't reached his target don't look for another one
                     if (currentTargetNode == 0 || pacmanIndex == currentTargetNode){
                         ExtractFeaturesFromState(state, game);
                     }
@@ -146,6 +161,7 @@ public class MyPacMan extends PacmanController {
             }
 
         } else {
+            // Look for best densest and closest cluster
             ExtractFeaturesFromState(state, game);
             myMove = game.getNextMoveTowardsTarget(pacmanIndex, currentTargetNode, lastMove, distanceMeasure);
         }
@@ -171,27 +187,35 @@ public class MyPacMan extends PacmanController {
         return -1;
     }
 
+    // Used as decision for goal selection
     public void ExtractFeaturesFromState(GameInfo info, Game game) {
         int pacmanIndex = info.getPacman().currentNodeIndex;
         int[] pill_nodes = game.getActivePillsIndices();
+        //If no pills are visible look in the stored solution containing all remaining pills
         if (pill_nodes.length == 0){
             int pillIndex = this.extendedGame.goToPill();
             this.currentTargetNode = pillIndex;
 
         } else {
+            // Check distance towards the available pills
             int[] distanses = new int[pill_nodes.length];
             for (int i = 0; i < pill_nodes.length; i ++){
                 distanses[i] = game.getManhattanDistance(pacmanIndex, pill_nodes[i]);
             }
 
             Arrays.sort(distanses);
+            //Get closest and furthest distance
             int min = Arrays.stream(distanses).min().getAsInt();
             int max = Arrays.stream(distanses).max().getAsInt();
+            // If closest visible pill is further than 30.0 distance consider the global availability of pills
             if (min > 30){
                 int pillIndex = this.extendedGame.goToPill();
                 this.currentTargetNode = pillIndex;
 
             } else {
+                //Maximize possible gain by going towards furthest point
+                //If it's farther than 40 concider going towards the closer gain
+                //Useful when in big hallways
                 int valueToCompare = max > 40 ? max : min;
                 int indexOfMaxa = Arrays.binarySearch(distanses, valueToCompare);
                 this.currentTargetNode = pill_nodes[indexOfMaxa];
@@ -200,6 +224,7 @@ public class MyPacMan extends PacmanController {
         }
     }
 
+    // Returns opposite move
     private MOVE GetOposite(MOVE move){
         if (move == MOVE.DOWN){
             return MOVE.UP;
@@ -212,6 +237,8 @@ public class MyPacMan extends PacmanController {
         }
     }
 
+    // Used to call on each new level to reinitialize the array
+    // containing the pills
     public void FirstIteration(Game game) {
         int[] allPills = game.getPillIndices();
         int[] allPowerPills = game.getPowerPillIndices();
